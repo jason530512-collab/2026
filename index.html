@@ -1,1 +1,153 @@
-<!DOCTYPE html><html><head><link rel='stylesheet' href='style.css'></head><body><img src='logo.jpeg'><h1>體脂肪率計算器</h1></body></html>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的紀念月曆</title>
+
+<style>
+body {
+  background: #f3c6c6;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang TC";
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+}
+
+.calendar {
+  width: 100%;
+  max-width: 380px;
+  background: #000;
+  border-radius: 24px;
+  overflow: hidden;
+  color: #fff;
+}
+
+/* 照片 */
+.photo {
+  height: 230px;
+  background-image: url("photo.jpg"); /* 換成你的照片 */
+  background-size: cover;
+  background-position: center;
+}
+
+/* 年份 */
+.year {
+  text-align: center;
+  font-size: 44px;
+  font-weight: bold;
+  color: #ffd966;
+  padding: 10px 0;
+}
+
+/* 月曆區 */
+.month {
+  padding: 16px;
+}
+
+.month h2 {
+  margin: 0 0 10px;
+  font-size: 22px;
+}
+
+/* 星期 */
+.weekdays, .days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+}
+
+.weekdays div {
+  font-size: 14px;
+  opacity: 0.8;
+  padding-bottom: 6px;
+}
+
+/* 日期 */
+.days div {
+  padding: 10px 0;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+/* 今天 */
+.today {
+  background: #ff4d4f;
+}
+
+/* 紀念日 */
+.memory {
+  background: #6bc1ff;
+  color: #000;
+  font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="calendar">
+  <div class="photo"></div>
+
+  <div class="year" id="yearText"></div>
+
+  <div class="month">
+    <h2 id="monthText"></h2>
+
+    <div class="weekdays">
+      <div>日</div><div>一</div><div>二</div>
+      <div>三</div><div>四</div><div>五</div><div>六</div>
+    </div>
+
+    <div class="days" id="days"></div>
+  </div>
+</div>
+
+<script>
+const year = 2026;
+const month = 0; // 0 = 1月
+
+// 紀念日設定（可自己加）
+const memories = {
+  "1-5": "生日",
+  "1-19": "旅行",
+  "1-28": "紀念日"
+};
+
+document.getElementById("yearText").innerText = year;
+document.getElementById("monthText").innerText = `${month + 1} 月`;
+
+const daysContainer = document.getElementById("days");
+const firstDay = new Date(year, month, 1).getDay();
+const totalDays = new Date(year, month + 1, 0).getDate();
+const today = new Date();
+
+for (let i = 0; i < firstDay; i++) {
+  daysContainer.innerHTML += "<div></div>";
+}
+
+for (let d = 1; d <= totalDays; d++) {
+  const div = document.createElement("div");
+  div.innerText = d;
+
+  // 今天
+  if (
+    d === today.getDate() &&
+    month === today.getMonth() &&
+    year === today.getFullYear()
+  ) {
+    div.classList.add("today");
+  }
+
+  // 紀念日
+  if (memories[`${month + 1}-${d}`]) {
+    div.classList.add("memory");
+    div.title = memories[`${month + 1}-${d}`];
+  }
+
+  daysContainer.appendChild(div);
+}
+</script>
+
+</body>
+</html>
