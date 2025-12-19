@@ -6,6 +6,31 @@
 <title>我的紀念月曆</title>
 
 <style>
+  .photo {
+  height: 230px;
+  background-color: #111;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.photo input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.photoHint {
+  position: absolute;
+  bottom: 10px;
+  right: 12px;
+  font-size: 12px;
+  color: #fff;
+  background: rgba(0,0,0,0.5);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
 body {
   background: #f3c6c6;
   font-family: -apple-system, BlinkMacSystemFont, "PingFang TC";
@@ -105,7 +130,31 @@ body {
     <div class="days" id="days"></div>
   </div>
 </div>
+.photo {
+  height: 230px;
+  background-color: #111;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  cursor: pointer;
+}
 
+.photo input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.photoHint {
+  position: absolute;
+  bottom: 10px;
+  right: 12px;
+  font-size: 12px;
+  color: #fff;
+  background: rgba(0,0,0,0.5);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
 <script>
 const year = 2026;
 const month = 0; // 0 = 1月
@@ -151,6 +200,25 @@ for (let d = 1; d <= totalDays; d++) {
   daysContainer.appendChild(div);
 }
 </script>
+const photoInput = document.getElementById("photoInput");
+const photoArea = document.getElementById("photoArea");
 
+photoInput.addEventListener("change", function () {
+  const file = this.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    photoArea.style.backgroundImage = `url(${e.target.result})`;
+    localStorage.setItem("calendarPhoto", e.target.result);
+  };
+  reader.readAsDataURL(file);
+});
+
+// 重新整理後保留照片
+const savedPhoto = localStorage.getItem("calendarPhoto");
+if (savedPhoto) {
+  photoArea.style.backgroundImage = `url(${savedPhoto})`;
+}
 </body>
 </html>
