@@ -6,6 +6,10 @@
 <title>我的紀念月曆</title>
 
 <style>
+:root {
+  --photo-height: 260px; /* 🔧 1️⃣ 改這裡就能調照片高度 */
+}
+
 body {
   background: #f3c6c6;
   font-family: -apple-system, BlinkMacSystemFont, "PingFang TC";
@@ -25,7 +29,7 @@ body {
 
 /* 照片區 */
 .photo {
-  height: 230px;
+  height: var(--photo-height);
   background-color: #111;
   background-size: cover;
   background-position: center;
@@ -44,32 +48,38 @@ body {
   bottom: 10px;
   right: 12px;
   font-size: 12px;
-  color: #fff;
   background: rgba(0,0,0,0.5);
   padding: 4px 8px;
   border-radius: 8px;
 }
 
-/* 年份 */
+/* 問候語 */
+.greeting {
+  text-align: center;
+  padding: 10px;
+  font-size: 15px;
+  background: #111;
+}
+
+/* 月曆 */
 .year {
   text-align: center;
   font-size: 44px;
   font-weight: bold;
   color: #ffd966;
-  padding: 10px 0;
+  padding: 6px 0;
 }
 
-/* 月曆 */
 .month {
-  padding: 16px;
+  padding: 12px 16px 16px;
 }
 
 .month h2 {
-  margin: 0 0 10px;
+  margin: 0 0 8px;
   font-size: 22px;
+  text-align: center;
 }
 
-/* 星期 & 日期 */
 .weekdays, .days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -79,24 +89,24 @@ body {
 .weekdays div {
   font-size: 14px;
   opacity: 0.8;
-  padding-bottom: 6px;
 }
 
 .days div {
-  padding: 10px 0;
+  padding: 8px 0;
   border-radius: 10px;
-  font-size: 15px;
 }
 
-/* 今天 */
-.today {
-  background: #ff4d4f;
-}
+.today { background: #ff4d4f; }
+.memory { background: #6bc1ff; color: #000; }
 
-/* 紀念日 */
-.memory {
-  background: #6bc1ff;
+/* 分享按鈕 */
+.shareBtn {
+  margin: 12px;
+  padding: 10px;
+  border-radius: 12px;
+  background: #ffd966;
   color: #000;
+  text-align: center;
   font-weight: bold;
 }
 </style>
@@ -104,90 +114,108 @@ body {
 
 <body>
 
-<div class="calendar">
+<div class="calendar" id="calendar">
   <div class="photo" id="photoArea">
     <input type="file" id="photoInput" accept="image/*">
     <span class="photoHint">點擊更換照片</span>
+  </div>
+
+  <div class="greeting" contenteditable="true">
+    願這個月充滿溫柔與力量 🌿
   </div>
 
   <div class="year" id="yearText"></div>
 
   <div class="month">
     <h2 id="monthText"></h2>
-
     <div class="weekdays">
       <div>日</div><div>一</div><div>二</div>
       <div>三</div><div>四</div><div>五</div><div>六</div>
     </div>
-
     <div class="days" id="days"></div>
   </div>
+
+  <div class="shareBtn" id="shareBtn">📤 分享這個月曆</div>
 </div>
 
 <script>
-// ===== 月曆設定 =====
-const year = 2026;
-const month = 0; // 0 = 1月
-
-const memories = {
-  "1-5": "生日",
-  "1-19": "旅行",
-  "1-28": "紀念日"
-};
-
-document.getElementById("yearText").innerText = year;
-document.getElementById("monthText").innerText = `${month + 1} 月`;
+// ===== 月份滑動切換 =====
+let current = new Date();
+let year = current.getFullYear();
+let month = current.getMonth();
 
 const daysContainer = document.getElementById("days");
-const firstDay = new Date(year, month, 1).getDay();
-const totalDays = new Date(year, month + 1, 0).getDate();
-const today = new Date();
+const yearText = document.getElementById("yearText");
+const monthText = document.getElementById("monthText");
 
-for (let i = 0; i < firstDay; i++) {
-  daysContainer.innerHTML += "<div></div>";
-}
+function renderCalendar() {
+  daysContainer.innerHTML = "";
+  yearText.innerText = year;
+  monthText.innerText = `${month + 1} 月`;
 
-for (let d = 1; d <= totalDays; d++) {
-  const div = document.createElement("div");
-  div.innerText = d;
+  const firstDay = new Date(year, month, 1).getDay();
+  const totalDays = new Date(year, month + 1, 0).getDate();
 
-  if (
-    d === today.getDate() &&
-    month === today.getMonth() &&
-    year === today.getFullYear()
-  ) {
-    div.classList.add("today");
+  for (let i = 0; i < firstDay; i++) {
+    daysContainer.innerHTML += "<div></div>";
   }
 
-  if (memories[`${month + 1}-${d}`]) {
-    div.classList.add("memory");
-    div.title = memories[`${month + 1}-${d}`];
+  for (let d = 1; d <= totalDays; d++) {
+    const div = document.createElement("div");
+    div.innerText = d;
+    daysContainer.appendChild(div);
   }
-
-  daysContainer.appendChild(div);
 }
 
-// ===== 照片更換（手機可用）=====
+renderCalendar();
+
+// 手勢滑動
+let startX = 0;
+document.getElementById("calendar").addEventListener("touchstart", e => {
+  startX = e.touches[0].clientX;
+});
+
+document.getElementById("calendar").addEventListener("touchend", e => {
+  const diff = e.changedTouches[0].clientX - startX;
+  if (diff > 50) month--;
+  if (diff < -50) month++;
+  if (month < 0) { month = 11; year--; }
+  if (month > 11) { month = 0; year++; }
+  renderCalendar();
+});
+
+// ===== 照片更換 =====
 const photoInput = document.getElementById("photoInput");
 const photoArea = document.getElementById("photoArea");
 
-photoInput.addEventListener("change", function () {
-  const file = this.files[0];
+photoInput.addEventListener("change", () => {
+  const file = photoInput.files[0];
   if (!file) return;
-
   const reader = new FileReader();
-  reader.onload = function (e) {
+  reader.onload = e => {
     photoArea.style.backgroundImage = `url(${e.target.result})`;
-    localStorage.setItem("calendarPhoto", e.target.result);
+    localStorage.setItem("photo", e.target.result);
   };
   reader.readAsDataURL(file);
 });
 
-const savedPhoto = localStorage.getItem("calendarPhoto");
-if (savedPhoto) {
-  photoArea.style.backgroundImage = `url(${savedPhoto})`;
-}
+const savedPhoto = localStorage.getItem("photo");
+if (savedPhoto) photoArea.style.backgroundImage = `url(${savedPhoto})`;
+
+// ===== 分享圖片 =====
+document.getElementById("shareBtn").onclick = async () => {
+  const canvas = await html2canvas(document.getElementById("calendar"));
+  canvas.toBlob(blob => {
+    navigator.share({
+      files: [new File([blob], "calendar.png", { type: "image/png" })],
+      title: "我的紀念月曆"
+    });
+  });
+};
 </script>
+
+<!-- html2canvas CDN -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 </body>
 </html>
