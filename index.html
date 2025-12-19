@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>我的紀念月曆</title>
 
 <style>
 :root {
-  --photo-height: 400px;
+  --photo-height: 380px;
 }
 
+/* ===== 基本 ===== */
 body {
+  margin: 0;
   background: #f3c6c6;
   font-family: -apple-system, BlinkMacSystemFont, "PingFang TC";
   display: flex;
@@ -22,17 +24,15 @@ body {
   width: 100%;
   max-width: 380px;
   background: #000;
-  border-radius: 24px;
+  border-radius: 26px;
   overflow: hidden;
   color: #fff;
 }
 
-/* 照片區 */
+/* ===== 照片 ===== */
 .photo {
   height: var(--photo-height);
-  background-color: #111;
-  background-size: cover;
-  background-position: center;
+  background: #111 center / cover no-repeat;
   position: relative;
   cursor: pointer;
 }
@@ -48,39 +48,43 @@ body {
   bottom: 10px;
   right: 12px;
   font-size: 12px;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.6);
   padding: 4px 8px;
   border-radius: 8px;
 }
 
-/* 問候語 */
+/* ===== 問候語 ===== */
 .greeting {
   text-align: center;
   padding: 10px;
   font-size: 15px;
-  background: #B15BFF;
+  background: #7f3fbf;
+}
+.greeting[contenteditable] { outline: none; }
+
+/* ===== 月份切換 ===== */
+.monthNav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
 }
 
-/* 年份 */
-.year {
-  text-align: center;
-  font-size: 44px;
-  font-weight: bold;
-  color: #ffd966;
-}
-
-/* 月曆 */
-.month {
-  padding: 12px 16px 16px;
-}
-
-.month h2 {
-  text-align: center;
+.monthNav button {
   font-size: 22px;
-  margin-bottom: 8px;
+  padding: 6px 16px;
+  border-radius: 12px;
+  border: none;
+  background: #ffd966;
+  color: #000;
 }
 
-/* 星期 */
+#monthLabel {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* ===== 星期 / 日期 ===== */
 .weekdays, .days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -88,31 +92,64 @@ body {
 }
 
 .weekdays div {
-  font-size: 14px;
-  opacity: 0.85;
+  opacity: 0.8;
+  padding-bottom: 6px;
+}
+
+.days {
+  position: relative;
+  padding-bottom: 12px;
+}
+
+/* 🐎 馬的透明背景 */
+.days::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("horse.jpg") center / contain no-repeat;
+  opacity: 0.18;
+  pointer-events: none;
 }
 
 /* 日期 */
 .days div {
-  padding: 8px 0;
+  position: relative;
+  padding: 10px 0;
   border-radius: 10px;
+  z-index: 1;
 }
 
-/* 假日（六、日） */
+/* 假日 */
 .weekend {
   color: #ff4d4f;
-  font-weight: 600;
+  font-weight: bold;
 }
 
-/* 分享按鈕 */
-.shareBtn {
-  margin: 12px;
+/* 國定假日 */
+.holiday {
+  background: #6bc1ff;
+  color: #000;
+  font-weight: bold;
+}
+
+/* ===== 功能按鈕 ===== */
+.btn {
+  margin: 10px 12px;
   padding: 10px;
-  border-radius: 12px;
+  border-radius: 14px;
   background: #ffd966;
   color: #000;
   text-align: center;
   font-weight: bold;
+}
+
+/* ===== 長輩模式 ===== */
+.elder {
+  font-size: 1.25em;
+}
+
+.elder .days div {
+  padding: 14px 0;
 }
 </style>
 </head>
@@ -120,112 +157,114 @@ body {
 <body>
 
 <div class="calendar" id="calendar">
+
   <div class="photo" id="photoArea">
     <input type="file" id="photoInput" accept="image/*">
     <span class="photoHint">點擊更換照片</span>
   </div>
 
   <div class="greeting" contenteditable="true">
-    願這個月充滿溫柔與力量 🌿
+    願這個月平安、健康、心想事成 🤍
   </div>
 
-  <div class="year" id="yearText"></div>
-
-  <div class="month">
-    <h2 id="monthText"></h2>
-    <div class="weekdays">
-      <div class="weekend">日</div>
-      <div>一</div><div>二</div><div>三</div><div>四</div><div>五</div>
-      <div class="weekend">六</div>
-    </div>
-    <div class="days" id="days"></div>
+  <div class="monthNav">
+    <button id="prev">◀</button>
+    <div id="monthLabel"></div>
+    <button id="next">▶</button>
   </div>
 
-  <div class="shareBtn" id="shareBtn">📤 分享這個月曆</div>
+  <div class="weekdays">
+    <div>日</div><div>一</div><div>二</div>
+    <div>三</div><div>四</div><div>五</div><div>六</div>
+  </div>
+
+  <div class="days" id="days"></div>
+
+  <div class="btn" id="ios">📱 存成 iPhone 壁紙</div>
+  <div class="btn" id="android">📱 存成 Android 壁紙</div>
+  <div class="btn" id="elder">👵 長輩模式</div>
+
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script>
-let current = new Date();
-let year = current.getFullYear();
-let month = current.getMonth();
+let date = new Date();
 
-const daysContainer = document.getElementById("days");
-const yearText = document.getElementById("yearText");
-const monthText = document.getElementById("monthText");
+const holidays = {
+  "1-1":"元旦",
+  "2-28":"和平紀念日",
+  "4-4":"兒童節",
+  "4-5":"清明節",
+  "10-10":"國慶日"
+};
 
-function renderCalendar() {
-  daysContainer.innerHTML = "";
-  yearText.innerText = year;
-  monthText.innerText = `${month + 1} 月`;
+function render() {
+  const y = date.getFullYear();
+  const m = date.getMonth();
+  const daysEl = document.getElementById("days");
+  daysEl.innerHTML = "";
+  document.getElementById("monthLabel").innerText = `${y} 年 ${m+1} 月`;
 
-  const firstDay = new Date(year, month, 1).getDay();
-  const totalDays = new Date(year, month + 1, 0).getDate();
+  const first = new Date(y,m,1).getDay();
+  const total = new Date(y,m+1,0).getDate();
 
-  for (let i = 0; i < firstDay; i++) {
-    daysContainer.appendChild(document.createElement("div"));
-  }
+  for(let i=0;i<first;i++) daysEl.innerHTML += "<div></div>";
 
-  for (let d = 1; d <= totalDays; d++) {
+  for(let d=1; d<=total; d++){
     const div = document.createElement("div");
     div.innerText = d;
-
-    const dayOfWeek = new Date(year, month, d).getDay();
-    if (dayOfWeek === 0 || dayOfWeek === 6) {
-      div.classList.add("weekend");
-    }
-
-    daysContainer.appendChild(div);
+    const w = new Date(y,m,d).getDay();
+    if(w===0 || w===6) div.classList.add("weekend");
+    if(holidays[`${m+1}-${d}`]) div.classList.add("holiday");
+    daysEl.appendChild(div);
   }
 }
 
-renderCalendar();
+render();
 
-// 左右滑動切換月份
-let startX = 0;
-document.getElementById("calendar").addEventListener("touchstart", e => {
-  startX = e.touches[0].clientX;
-});
+document.getElementById("prev").onclick = () => {
+  date.setMonth(date.getMonth()-1); render();
+};
+document.getElementById("next").onclick = () => {
+  date.setMonth(date.getMonth()+1); render();
+};
 
-document.getElementById("calendar").addEventListener("touchend", e => {
-  const diff = e.changedTouches[0].clientX - startX;
-  if (diff > 50) month--;
-  if (diff < -50) month++;
-  if (month < 0) { month = 11; year--; }
-  if (month > 11) { month = 0; year++; }
-  renderCalendar();
-});
-
-// 照片更換
+/* 照片 */
 const photoInput = document.getElementById("photoInput");
 const photoArea = document.getElementById("photoArea");
 
-photoInput.addEventListener("change", () => {
+photoInput.onchange = () => {
   const file = photoInput.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
+  if(!file) return;
+  const r = new FileReader();
+  r.onload = e => {
     photoArea.style.backgroundImage = `url(${e.target.result})`;
     localStorage.setItem("photo", e.target.result);
   };
-  reader.readAsDataURL(file);
-});
-
-const savedPhoto = localStorage.getItem("photo");
-if (savedPhoto) photoArea.style.backgroundImage = `url(${savedPhoto})`;
-
-// 分享圖片
-document.getElementById("shareBtn").onclick = async () => {
-  const canvas = await html2canvas(document.getElementById("calendar"));
-  canvas.toBlob(blob => {
-    navigator.share({
-      files: [new File([blob], "calendar.png", { type: "image/png" })],
-      title: "我的紀念月曆"
-    });
-  });
+  r.readAsDataURL(file);
 };
-</script>
 
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+const saved = localStorage.getItem("photo");
+if(saved) photoArea.style.backgroundImage = `url(${saved})`;
+
+/* 壁紙輸出 */
+async function exportImg(w,h,name){
+  const scale = w / calendar.offsetWidth;
+  const canvas = await html2canvas(calendar,{scale});
+  canvas.toBlob(b=>{
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(b);
+    a.download=name;
+    a.click();
+  });
+}
+
+ios.onclick = ()=>exportImg(1170,2532,"calendar-ios.png");
+android.onclick = ()=>exportImg(1080,2400,"calendar-android.png");
+
+/* 長輩模式 */
+elder.onclick = ()=>document.body.classList.toggle("elder");
+</script>
 
 </body>
 </html>
