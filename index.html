@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>我的紀念月曆</title>
+<title>我的心情桌布月曆</title>
 
 <style>
 :root {
@@ -160,7 +160,7 @@ body {
   </div>
 
   <div class="greeting" contenteditable="true">
-    願這個月平安、順心、充滿笑容 🤍
+    願這個月平安、順心、充滿笑容 😊
   </div>
 
   <div class="monthNav">
@@ -242,7 +242,7 @@ saveImage.onclick = async () => {
   canvas.toBlob(blob=>{
     const a=document.createElement("a");
     a.href=URL.createObjectURL(blob);
-    a.download="我的紀念月曆.png";
+    a.download="每月更換的心情桌布.png";
     a.click();
   });
 };
