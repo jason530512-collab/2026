@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>我的紀念月曆</title>
 
 <style>
 :root {
-  --photo-height: 380px;
+  --photo-height: 360px;
 }
 
-/* ===== 基本 ===== */
 body {
   margin: 0;
   background: #f3c6c6;
@@ -71,7 +70,7 @@ body {
 }
 
 .monthNav button {
-  font-size: 22px;
+  font-size: 20px;
   padding: 6px 16px;
   border-radius: 12px;
   border: none;
@@ -101,7 +100,7 @@ body {
   padding-bottom: 12px;
 }
 
-/* 🐎 馬的透明背景 */
+/* 🐎 半透明背景圖 */
 .days::before {
   content: "";
   position: absolute;
@@ -119,7 +118,7 @@ body {
   z-index: 1;
 }
 
-/* 假日 */
+/* 週末 */
 .weekend {
   color: #ff4d4f;
   font-weight: bold;
@@ -132,9 +131,9 @@ body {
   font-weight: bold;
 }
 
-/* ===== 功能按鈕 ===== */
+/* ===== 儲存按鈕 ===== */
 .btn {
-  margin: 10px 12px;
+  margin: 12px;
   padding: 10px;
   border-radius: 14px;
   background: #ffd966;
@@ -143,13 +142,10 @@ body {
   font-weight: bold;
 }
 
-/* ===== 長輩模式 ===== */
-.elder {
-  font-size: 1.25em;
-}
-
-.elder .days div {
-  padding: 14px 0;
+/* 存圖時隱藏 UI */
+.hide-ui .btn,
+.hide-ui .photoHint {
+  display: none;
 }
 </style>
 </head>
@@ -164,7 +160,7 @@ body {
   </div>
 
   <div class="greeting" contenteditable="true">
-    願這個月平安、健康、心想事成 🤍
+    願這個月平安、順心、充滿笑容 🤍
   </div>
 
   <div class="monthNav">
@@ -180,9 +176,7 @@ body {
 
   <div class="days" id="days"></div>
 
-  <div class="btn" id="ios">📱 存成 iPhone 壁紙</div>
-  <div class="btn" id="android">📱 存成 Android 壁紙</div>
-  <div class="btn" id="elder">👵 長輩模式</div>
+  <div class="btn" id="saveImage">📷 儲存畫面</div>
 
 </div>
 
@@ -219,20 +213,12 @@ function render() {
     daysEl.appendChild(div);
   }
 }
-
 render();
 
-document.getElementById("prev").onclick = () => {
-  date.setMonth(date.getMonth()-1); render();
-};
-document.getElementById("next").onclick = () => {
-  date.setMonth(date.getMonth()+1); render();
-};
+prev.onclick = ()=>{ date.setMonth(date.getMonth()-1); render(); };
+next.onclick = ()=>{ date.setMonth(date.getMonth()+1); render(); };
 
-/* 照片 */
-const photoInput = document.getElementById("photoInput");
-const photoArea = document.getElementById("photoArea");
-
+/* 照片（只存在自己手機） */
 photoInput.onchange = () => {
   const file = photoInput.files[0];
   if(!file) return;
@@ -247,23 +233,19 @@ photoInput.onchange = () => {
 const saved = localStorage.getItem("photo");
 if(saved) photoArea.style.backgroundImage = `url(${saved})`;
 
-/* 壁紙輸出 */
-async function exportImg(w,h,name){
-  const scale = w / calendar.offsetWidth;
-  const canvas = await html2canvas(calendar,{scale});
-  canvas.toBlob(b=>{
+/* 乾淨儲存畫面 */
+saveImage.onclick = async () => {
+  calendar.classList.add("hide-ui");
+  await new Promise(r=>setTimeout(r,100));
+  const canvas = await html2canvas(calendar,{backgroundColor:null});
+  calendar.classList.remove("hide-ui");
+  canvas.toBlob(blob=>{
     const a=document.createElement("a");
-    a.href=URL.createObjectURL(b);
-    a.download=name;
+    a.href=URL.createObjectURL(blob);
+    a.download="我的紀念月曆.png";
     a.click();
   });
-}
-
-ios.onclick = ()=>exportImg(1170,2532,"calendar-ios.png");
-android.onclick = ()=>exportImg(1080,2400,"calendar-android.png");
-
-/* 長輩模式 */
-elder.onclick = ()=>document.body.classList.toggle("elder");
+};
 </script>
 
 </body>
