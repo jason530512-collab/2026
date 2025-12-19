@@ -7,7 +7,7 @@
 
 <style>
 :root {
-  --photo-height: 400px; /* 🔧 1️⃣ 改這裡就能調照片高度 */
+  --photo-height: 400px;
 }
 
 body {
@@ -61,25 +61,26 @@ body {
   background: #B15BFF;
 }
 
-/* 月曆 */
+/* 年份 */
 .year {
   text-align: center;
   font-size: 44px;
   font-weight: bold;
   color: #ffd966;
-  padding: 6px 0;
 }
 
+/* 月曆 */
 .month {
   padding: 12px 16px 16px;
 }
 
 .month h2 {
-  margin: 0 0 8px;
-  font-size: 22px;
   text-align: center;
+  font-size: 22px;
+  margin-bottom: 8px;
 }
 
+/* 星期 */
 .weekdays, .days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -88,21 +89,20 @@ body {
 
 .weekdays div {
   font-size: 14px;
-  opacity: 0.8;
+  opacity: 0.85;
 }
 
+/* 日期 */
 .days div {
-  /* 假日（六、日） */
-.weekend {
-  color: #ff4d4f;
-  font-weight: 600;
-}
   padding: 8px 0;
   border-radius: 10px;
 }
 
-.today { background: #ff4d4f; }
-.memory { background: #6bc1ff; color: #000; }
+/* 假日（六、日） */
+.weekend {
+  color: #ff4d4f;
+  font-weight: 600;
+}
 
 /* 分享按鈕 */
 .shareBtn {
@@ -134,8 +134,9 @@ body {
   <div class="month">
     <h2 id="monthText"></h2>
     <div class="weekdays">
-      <div>日</div><div>一</div><div>二</div>
-      <div>三</div><div>四</div><div>五</div><div>六</div>
+      <div class="weekend">日</div>
+      <div>一</div><div>二</div><div>三</div><div>四</div><div>五</div>
+      <div class="weekend">六</div>
     </div>
     <div class="days" id="days"></div>
   </div>
@@ -144,7 +145,6 @@ body {
 </div>
 
 <script>
-// ===== 月份滑動切換 =====
 let current = new Date();
 let year = current.getFullYear();
 let month = current.getMonth();
@@ -162,24 +162,25 @@ function renderCalendar() {
   const totalDays = new Date(year, month + 1, 0).getDate();
 
   for (let i = 0; i < firstDay; i++) {
-    daysContainer.innerHTML += "<div></div>";
-  }
-for (let d = 1; d <= totalDays; d++) {
-  const div = document.createElement("div");
-  div.innerText = d;
-
-  // 判斷星期幾（0=日, 6=六）
-  const dayOfWeek = new Date(year, month, d).getDay();
-  if (dayOfWeek === 0 || dayOfWeek === 6) {
-    div.classList.add("weekend");
+    daysContainer.appendChild(document.createElement("div"));
   }
 
-  daysContainer.appendChild(div);
+  for (let d = 1; d <= totalDays; d++) {
+    const div = document.createElement("div");
+    div.innerText = d;
+
+    const dayOfWeek = new Date(year, month, d).getDay();
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      div.classList.add("weekend");
+    }
+
+    daysContainer.appendChild(div);
+  }
 }
 
 renderCalendar();
 
-// 手勢滑動
+// 左右滑動切換月份
 let startX = 0;
 document.getElementById("calendar").addEventListener("touchstart", e => {
   startX = e.touches[0].clientX;
@@ -194,7 +195,7 @@ document.getElementById("calendar").addEventListener("touchend", e => {
   renderCalendar();
 });
 
-// ===== 照片更換 =====
+// 照片更換
 const photoInput = document.getElementById("photoInput");
 const photoArea = document.getElementById("photoArea");
 
@@ -212,7 +213,7 @@ photoInput.addEventListener("change", () => {
 const savedPhoto = localStorage.getItem("photo");
 if (savedPhoto) photoArea.style.backgroundImage = `url(${savedPhoto})`;
 
-// ===== 分享圖片 =====
+// 分享圖片
 document.getElementById("shareBtn").onclick = async () => {
   const canvas = await html2canvas(document.getElementById("calendar"));
   canvas.toBlob(blob => {
@@ -224,7 +225,6 @@ document.getElementById("shareBtn").onclick = async () => {
 };
 </script>
 
-<!-- html2canvas CDN -->
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 </body>
