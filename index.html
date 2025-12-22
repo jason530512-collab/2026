@@ -236,14 +236,22 @@ if(saved) photoArea.style.backgroundImage = `url(${saved})`;
 /* 乾淨儲存畫面 */
 saveImage.onclick = async () => {
   calendar.classList.add("hide-ui");
-  await new Promise(r=>setTimeout(r,100));
-  const canvas = await html2canvas(calendar,{backgroundColor:null});
+  await new Promise(r => setTimeout(r, 100));
+
+  const canvas = await html2canvas(calendar, { backgroundColor: null });
+
   calendar.classList.remove("hide-ui");
-  canvas.toBlob(blob=>{
-    const a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download="每月更換的心情桌布.png";
+
+  canvas.toBlob(blob => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "我的紀念月曆.png";
     a.click();
+
+    // ✅ 儲存完成提示
+    setTimeout(() => {
+      alert("✅ 已儲存到相簿\n請開啟「照片」查看");
+    }, 300);
   });
 };
 </script>
