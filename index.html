@@ -41,13 +41,20 @@ body { margin: 0; background: #f3c6c6; font-family: -apple-system, BlinkMacSyste
 }
 
 /* 為了達成半透明疊加效果，我們用偽元素加一層黑色的薄膜 */
+/* 控制日期欄背景圖透明度的關鍵位置 */
 .days::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.8); /* 數值越高背景越黑，文字越清晰 *
+    
+    /* 這裡的 0.4 就是透明度（數值 0.0 到 1.0） */
+    /* 0.1 代表非常透明（接近原圖亮度） */
+    /* 0.8 代表非常暗（黑色遮蓋較重，文字最清晰） */
+    background: rgba(0, 0, 0, 0.4); 
+    
     z-index: 1;
 }
+
 
 .day-cell { 
     position: relative; 
