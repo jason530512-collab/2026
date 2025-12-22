@@ -235,23 +235,36 @@ if(saved) photoArea.style.backgroundImage = `url(${saved})`;
 
 /* 乾淨儲存畫面 */
 saveImage.onclick = async () => {
+  const calendar = document.getElementById("calendar");
+
+  // 1️⃣ 隱藏 UI
   calendar.classList.add("hide-ui");
   await new Promise(r => setTimeout(r, 100));
 
+  // 2️⃣ 截圖
   const canvas = await html2canvas(calendar, { backgroundColor: null });
 
+  // 3️⃣ 還原 UI
   calendar.classList.remove("hide-ui");
 
-  canvas.toBlob(blob => {
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "我的紀念月曆.png";
-    a.click();
+  // 4️⃣ 轉成 Blob
+  canvas.toBlob(async blob => {
 
-    // ✅ 儲存完成提示
-    setTimeout(() => {
-      alert("✅ 已儲存到相簿\n請開啟「照片」查看");
-    }, 300);
+    // 🔑 核心：叫出「系統分享面板」
+    if (navigator.share) {
+      const file = new File([blob], "我的紀念月曆.png", { type: "image/png" });
+      await navigator.share({
+        files: [file],
+        title: "我的紀念月曆"
+      });
+    } else {
+      // 備用（少數舊裝置）
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "我的紀念月曆.png";
+      a.click();
+      alert("請到下載項目或檔案中查看圖片");
+    }
   });
 };
 </script>
