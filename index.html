@@ -3,45 +3,82 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>高清心情月曆</title>
+<title>高清心情月曆 - 背景圖版</title>
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <style>
-:root { --photo-height: 400px; }
-body { margin: 0; background: #f3c6c6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang TC", sans-serif; display: flex; flex-direction: column; align-items: center; padding: 10px; }
+:root { --photo-height: 380px; }
+body { margin: 0; background: #f3c6c6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 10px; }
 
-.calendar { width: 100%; max-width: 400px; background: #000; border-radius: 30px; overflow: hidden; color: #fff; }
+/* 月曆主體 */
+.calendar { width: 100%; max-width: 400px; background: #000; border-radius: 30px; overflow: hidden; color: #fff; position: relative; }
 
+/* 上方照片 */
 .photo { height: var(--photo-height); background: #222 center / cover no-repeat; position: relative; }
 .photo input { position: absolute; inset: 0; opacity: 0; z-index: 10; cursor: pointer; }
-.photoHint { position: absolute; bottom: 15px; right: 15px; font-size: 12px; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 10px; pointer-events: none; }
+.photoHint { position: absolute; bottom: 15px; right: 15px; font-size: 11px; background: rgba(0,0,0,0.5); padding: 4px 10px; border-radius: 10px; pointer-events: none; }
 
-.greeting { text-align: center; padding: 15px; font-size: 16px; background: #7f3fbf; min-height: 1.5em; border: none; outline: none; }
+.greeting { text-align: center; padding: 15px; font-size: 16px; background: #7f3fbf; color: #fff; outline: none; }
 
-.monthNav { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; }
-.monthNav button { font-size: 20px; width: 45px; height: 45px; border-radius: 50%; border: none; background: #ffd966; color: #000; font-weight: bold; }
-#monthLabel { font-size: 20px; font-weight: bold; letter-spacing: 2px; }
+.monthNav { display: flex; justify-content: space-between; align-items: center; padding: 10px 25px; background: rgba(0,0,0,0.3); }
+.monthNav button { font-size: 18px; width: 40px; height: 40px; border-radius: 50%; border: none; background: #ffd966; color: #000; }
+#monthLabel { font-size: 18px; font-weight: bold; }
 
-.weekdays, .days { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; }
-.weekdays div { opacity: 0.5; font-size: 14px; padding-bottom: 10px; }
+.weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; background: rgba(0,0,0,0.3); padding: 10px 0; }
+.weekdays div { opacity: 0.6; font-size: 13px; }
 
-.days { position: relative; padding-bottom: 20px; min-height: 300px; }
-.day-cell { position: relative; padding: 10px 0; display: flex; flex-direction: column; align-items: center; z-index: 5; }
-.solar-date { font-size: 18px; font-weight: 600; }
-.lunar-date { font-size: 11px; color: #ccc; margin-top: 3px; }
+/* ===== 重點：日期區域與背景圖 ===== */
+.days { 
+    position: relative; 
+    display: grid; 
+    grid-template-columns: repeat(7, 1fr); 
+    text-align: center;
+    padding-bottom: 20px;
+    min-height: 320px;
+    /* 這裡放入您的背景圖路徑 */
+    background: url("horse.jpg") center / cover no-repeat;
+}
 
-.weekend .solar-date { color: #ff5e5e; }
-.holiday .solar-date { color: #6bc1ff; }
+/* 為了達成半透明疊加效果，我們用偽元素加一層黑色的薄膜 */
+.days::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4); /* 數值越高背景越黑，文字越清晰 */
+    z-index: 1;
+}
 
-/* 截圖遮罩 */
+.day-cell { 
+    position: relative; 
+    padding: 12px 0; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    z-index: 2; /* 確保文字在背景膜之上 */
+}
+
+.solar-date { 
+    font-size: 20px; 
+    font-weight: 500; 
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.8); /* 加上陰影確保在白底背景也能看見 */
+}
+.lunar-date { 
+    font-size: 11px; 
+    color: rgba(255,255,255,0.8); 
+    margin-top: 2px;
+}
+
+/* 週末與節日顏色 */
+.weekend .solar-date { color: #ff6b6b; }
+.holiday .solar-date { color: #4dabf7; font-weight: bold; }
+
+/* 儲存按鈕與遮罩 */
 #resultMask { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
-#resultImage { max-width: 90%; max-height: 75%; border-radius: 20px; box-shadow: 0 0 30px rgba(255,255,255,0.1); }
-#resultMask p { color: #ffd966; margin-top: 20px; font-weight: bold; }
+#resultImage { max-width: 90%; max-height: 80%; border-radius: 15px; }
+#resultMask p { color: #ffd966; margin-top: 15px; }
+.btn { margin-top: 20px; padding: 15px 40px; border-radius: 15px; background: #ffd966; color: #000; font-weight: bold; font-size: 17px; cursor: pointer; border: none; }
 
-.btn { margin-top: 20px; padding: 15px 50px; border-radius: 20px; background: #ffd966; color: #000; font-weight: bold; font-size: 18px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-
-/* 截圖時完全隱藏 UI */
 .hide-ui .photoHint, .hide-ui button, .hide-ui #saveBtn { display: none !important; }
 </style>
 </head>
@@ -50,32 +87,31 @@ body { margin: 0; background: #f3c6c6; font-family: -apple-system, BlinkMacSyste
 <div class="calendar" id="calendar">
   <div class="photo" id="photoArea">
     <input type="file" id="photoInput" accept="image/*">
-    <span class="photoHint">點擊更換照片</span>
+    <span class="photoHint">點擊換圖</span>
   </div>
-  <div class="greeting" contenteditable="true">寫下您的心情小語...</div>
+  <div class="greeting" contenteditable="true">在這裡輸入您的心情...</div>
   <div class="monthNav">
     <button onclick="changeMonth(-1)">◀</button>
     <div id="monthLabel"></div>
     <button onclick="changeMonth(1)">▶</button>
   </div>
   <div class="weekdays">
-    <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+    <div style="color: #ff6b6b">日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div style="color: #ff6b6b">六</div>
   </div>
   <div class="days" id="days"></div>
 </div>
 
-<div class="btn" id="saveBtn" onclick="takeScreenshot()">📸 生成高清桌布圖片</div>
+<button class="btn" id="saveBtn" onclick="takeScreenshot()">📸 生成高清儲存圖片</button>
 
 <div id="resultMask" onclick="this.style.display='none'">
   <img id="resultImage" src="" alt="">
-  <p>▲ 長按圖片儲存到相簿 ▲</p>
-  <div class="btn" style="background:#444; color:#fff;">返回</div>
+  <p>💡 長按圖片儲存到手機</p>
+  <button class="btn" style="background:#555; color:#fff;">返回</button>
 </div>
 
 <script>
 let current = new Date();
 
-// 內建農曆轉換邏輯 (Intl.DateTimeFormat API - 現代瀏覽器原生支援)
 function getLunarDay(date) {
     try {
         const options = { day: 'numeric', month: 'long', calendar: 'chinese' };
@@ -83,10 +119,8 @@ function getLunarDay(date) {
         const parts = formatter.formatToParts(date);
         const month = parts.find(p => p.type === 'month').value;
         const day = parts.find(p => p.type === 'day').value;
-        return day === '1' || day === '初一' ? month : day;
-    } catch (e) {
-        return "";
-    }
+        return (day === '1' || day === '初一') ? month : day;
+    } catch (e) { return ""; }
 }
 
 function render() {
@@ -105,17 +139,14 @@ function render() {
         const targetDate = new Date(y, m, d);
         const cell = document.createElement("div");
         cell.className = "day-cell";
-        
         const solar = document.createElement("span");
         solar.className = "solar-date";
         solar.innerText = d;
-
         const lunar = document.createElement("span");
         lunar.className = "lunar-date";
         lunar.innerText = getLunarDay(targetDate);
 
         if (targetDate.getDay() === 0 || targetDate.getDay() === 6) cell.classList.add("weekend");
-        
         cell.appendChild(solar);
         cell.appendChild(lunar);
         daysEl.appendChild(cell);
@@ -127,50 +158,36 @@ function changeMonth(step) {
     render();
 }
 
-// 照片處理
 document.getElementById('photoInput').onchange = function(e) {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
         document.getElementById('photoArea').style.backgroundImage = `url(${ev.target.result})`;
-        localStorage.setItem("my_cal_bg", ev.target.result);
+        localStorage.setItem("cal_bg_custom", ev.target.result);
     };
     reader.readAsDataURL(file);
 };
 
-// 載入暫存圖
-const cached = localStorage.getItem("my_cal_bg");
+const cached = localStorage.getItem("cal_bg_custom");
 if (cached) document.getElementById('photoArea').style.backgroundImage = `url(${cached})`;
 
-// 高清截圖邏輯
 async function takeScreenshot() {
     const btn = document.getElementById('saveBtn');
-    btn.innerText = "高清生成中...";
+    btn.innerText = "生成中...";
     const calendar = document.getElementById('calendar');
-    
     calendar.classList.add('hide-ui');
-    
-    // 等待 500ms 確保 UI 渲染完全，特別是 iOS Safari
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, 400));
 
     html2canvas(calendar, {
-        scale: 4, // 解析度提升 4 倍
+        scale: 3, 
         useCORS: true,
-        backgroundColor: "#000",
-        logging: false,
-        width: calendar.offsetWidth,
-        height: calendar.offsetHeight
+        backgroundColor: "#000"
     }).then(canvas => {
-        const resImg = document.getElementById("resultImage");
-        resImg.src = canvas.toDataURL("image/png", 1.0);
+        document.getElementById("resultImage").src = canvas.toDataURL("image/png");
         document.getElementById("resultMask").style.display = "flex";
         calendar.classList.remove('hide-ui');
-        btn.innerText = "📸 生成高清桌布圖片";
-    }).catch(err => {
-        alert("截圖發生錯誤，請重試");
-        calendar.classList.remove('hide-ui');
-        btn.innerText = "📸 生成高清桌布圖片";
+        btn.innerText = "📸 生成高清儲存圖片";
     });
 }
 
