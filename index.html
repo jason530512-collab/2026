@@ -2,167 +2,68 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>我的心情桌布月曆</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>我的心情桌布月曆 (含農曆)</title>
+
+<script src="https://cdn.jsdelivr.net/npm/solar-lunar@1.1.5/lib/solar-lunar.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <style>
-:root {
-  --photo-height: 360px;
-}
+:root { --photo-height: 360px; }
+body { margin: 0; background: #f3c6c6; font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", sans-serif; display: flex; flex-direction: column; align-items: center; padding: 16px; }
 
-body {
-  margin: 0;
-  background: #f3c6c6;
-  font-family: -apple-system, BlinkMacSystemFont, "PingFang TC";
-  display: flex;
-  justify-content: center;
-  padding: 16px;
-}
+.calendar { width: 100%; max-width: 380px; background: #000; border-radius: 26px; overflow: hidden; color: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
 
-.calendar {
-  width: 100%;
-  max-width: 380px;
-  background: #000;
-  border-radius: 26px;
-  overflow: hidden;
-  color: #fff;
-}
+/* 照片區域 */
+.photo { height: var(--photo-height); background: #111 center / cover no-repeat; position: relative; cursor: pointer; }
+.photo input { position: absolute; inset: 0; opacity: 0; z-index: 2; cursor: pointer; }
+.photoHint { position: absolute; bottom: 10px; right: 12px; font-size: 12px; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 8px; pointer-events: none; }
 
-/* ===== 照片 ===== */
-.photo {
-  height: var(--photo-height);
-  background: #111 center / cover no-repeat;
-  position: relative;
-  cursor: pointer;
-}
+.greeting { text-align: center; padding: 12px; font-size: 15px; background: #7f3fbf; min-height: 1.5em; color: #fff; }
+.greeting[contenteditable] { outline: none; border-bottom: 1px dashed rgba(255,255,255,0.3); }
 
-.photo input {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-}
+.monthNav { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; }
+.monthNav button { font-size: 18px; padding: 8px 16px; border-radius: 12px; border: none; background: #ffd966; color: #000; font-weight: bold; }
+#monthLabel { font-size: 1.2rem; font-weight: bold; letter-spacing: 1px; }
 
-.photoHint {
-  position: absolute;
-  bottom: 10px;
-  right: 12px;
-  font-size: 12px;
-  background: rgba(0,0,0,0.6);
-  padding: 4px 8px;
-  border-radius: 8px;
-}
+.weekdays, .days { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; }
+.weekdays div { opacity: 0.6; font-size: 13px; padding-bottom: 8px; }
 
-/* ===== 問候語 ===== */
-.greeting {
-  text-align: center;
-  padding: 10px;
-  font-size: 15px;
-  background: #7f3fbf;
-}
-.greeting[contenteditable] { outline: none; }
+.days { position: relative; padding-bottom: 15px; min-height: 250px; }
+.days::before { content: ""; position: absolute; inset: 0; background: url("horse.jpg") center / contain no-repeat; opacity: 0.25; pointer-events: none; }
 
-/* ===== 月份切換 ===== */
-.monthNav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 16px;
-}
+/* 日期格子排版 */
+.day-cell { position: relative; padding: 8px 0; display: flex; flex-direction: column; align-items: center; z-index: 1; min-height: 50px; }
+.solar-date { font-size: 17px; font-weight: 500; }
+.lunar-date { font-size: 10px; opacity: 0.8; margin-top: 2px; transform: scale(0.9); }
 
-.monthNav button {
-  font-size: 20px;
-  padding: 6px 16px;
-  border-radius: 12px;
-  border: none;
-  background: #ffd966;
-  color: #000;
-}
+.weekend .solar-date { color: #ff4d4f; font-weight: bold; }
+.holiday { background: rgba(107, 193, 255, 0.3); border-radius: 10px; }
+.holiday .solar-date { color: #6bc1ff; }
 
-#monthLabel {
-  font-size: 18px;
-  font-weight: bold;
-}
+.btn { margin: 20px 0; padding: 14px 40px; border-radius: 14px; background: #ffd966; color: #000; text-align: center; font-weight: bold; cursor: pointer; width: 85%; max-width: 320px; transition: 0.2s; }
+.btn:active { transform: scale(0.98); opacity: 0.9; }
 
-/* ===== 星期 / 日期 ===== */
-.weekdays, .days {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  text-align: center;
-}
+/* 截圖遮罩層 */
+#resultMask { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+#resultImage { max-width: 85%; max-height: 75%; border-radius: 15px; border: 2px solid #555; }
+#resultMask p { color: #ffd966; margin-top: 20px; font-size: 15px; font-weight: bold; text-shadow: 0 0 10px rgba(0,0,0,1); }
 
-.weekdays div {
-  opacity: 0.8;
-  padding-bottom: 6px;
-}
-
-.days {
-  position: relative;
-  padding-bottom: 12px;
-}
-
-/* 🐎 半透明背景圖 */
-.days::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: url("horse.jpg") center / contain no-repeat;
-  opacity: 0.31;
-  pointer-events: none;
-}
-
-/* 日期 */
-.days div {
-  position: relative;
-  padding: 10px 0;
-  border-radius: 10px;
-  z-index: 1;
-}
-
-/* 週末 */
-.weekend {
-  color: #ff4d4f;
-  font-weight: bold;
-}
-
-/* 國定假日 */
-.holiday {
-  background: #6bc1ff;
-  color: #000;
-  font-weight: bold;
-}
-
-/* ===== 儲存按鈕 ===== */
-.btn {
-  margin: 12px;
-  padding: 10px;
-  border-radius: 14px;
-  background: #ffd966;
-  color: #000;
-  text-align: center;
-  font-weight: bold;
-}
-
-/* 存圖時隱藏 UI */
-.hide-ui .btn,
-.hide-ui .photoHint {
-  display: none;
-}
+/* 截圖時隱藏按鈕與提示 */
+.hide-ui .btn, .hide-ui .photoHint, .hide-ui .monthNav button { display: none !important; }
 </style>
 </head>
 
 <body>
 
 <div class="calendar" id="calendar">
-
   <div class="photo" id="photoArea">
     <input type="file" id="photoInput" accept="image/*">
-    <span class="photoHint">點擊更換照片</span>
+    <span class="photoHint">📷 點擊更換桌布相片</span>
   </div>
-
-  <div class="greeting" contenteditable="true">
-    這裡可以表達您的心情😊
-  </div>
-
+  
+  <div class="greeting" contenteditable="true">寫下這個月的心情... ✨</div>
+  
   <div class="monthNav">
     <button id="prev">◀</button>
     <div id="monthLabel"></div>
@@ -170,27 +71,23 @@ body {
   </div>
 
   <div class="weekdays">
-    <div>日</div><div>一</div><div>二</div>
-    <div>三</div><div>四</div><div>五</div><div>六</div>
+    <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
   </div>
 
   <div class="days" id="days"></div>
-
-  <div class="btn" id="saveImage">📷 儲存畫面</div>
-
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<div class="btn" id="saveImage">📸 生成手機儲存圖片</div>
+
+<div id="resultMask">
+  <img id="resultImage" src="" alt="生成的月曆">
+  <p>💡 長按圖片「儲存到相簿」</p>
+  <div class="btn" style="background: #444; color: white; margin-top: 10px;" onclick="document.getElementById('resultMask').style.display='none'">返回修改</div>
+</div>
+
 <script>
 let date = new Date();
-
-const holidays = {
-  "1-1":"元旦",
-  "2-28":"和平紀念日",
-  "4-4":"兒童節",
-  "4-5":"清明節",
-  "10-10":"國慶日"
-};
+const holidays = {"1-1":"元旦","2-28":"和平紀念日","4-4":"兒童節","4-5":"清明節","10-10":"國慶日"};
 
 function render() {
   const y = date.getFullYear();
@@ -199,73 +96,94 @@ function render() {
   daysEl.innerHTML = "";
   document.getElementById("monthLabel").innerText = `${y} 年 ${m+1} 月`;
 
-  const first = new Date(y,m,1).getDay();
-  const total = new Date(y,m+1,0).getDate();
+  const firstDay = new Date(y, m, 1).getDay();
+  const totalDays = new Date(y, m + 1, 0).getDate();
 
-  for(let i=0;i<first;i++) daysEl.innerHTML += "<div></div>";
+  // 填補月初空白
+  for(let i=0; i<firstDay; i++) {
+    const empty = document.createElement("div");
+    daysEl.appendChild(empty);
+  }
 
-  for(let d=1; d<=total; d++){
-    const div = document.createElement("div");
-    div.innerText = d;
-    const w = new Date(y,m,d).getDay();
-    if(w===0 || w===6) div.classList.add("weekend");
-    if(holidays[`${m+1}-${d}`]) div.classList.add("holiday");
-    daysEl.appendChild(div);
+  // 渲染日期
+  for(let d=1; d<=totalDays; d++){
+    const cell = document.createElement("div");
+    cell.className = "day-cell";
+    
+    // 陽曆數字
+    const solarSpan = document.createElement("span");
+    solarSpan.className = "solar-date";
+    solarSpan.innerText = d;
+    
+    // 計算農曆 (使用 solarLunar 庫)
+    const lunarInfo = solarLunar.solar2lunar(y, m + 1, d);
+    const lunarSpan = document.createElement("span");
+    lunarSpan.className = "lunar-date";
+    
+    // 農曆顯示邏輯：如果是初一顯示月份，否則顯示日期或節氣
+    let lunarText = lunarInfo.dayCn; 
+    if(lunarInfo.dayCn === '初一') lunarText = lunarInfo.monthCn;
+    if(lunarInfo.term) lunarText = lunarInfo.term; // 優先顯示節氣 (如冬至、清明)
+    lunarSpan.innerText = lunarText;
+
+    const dayOfWeek = new Date(y, m, d).getDay();
+    if(dayOfWeek === 0 || dayOfWeek === 6) cell.classList.add("weekend");
+    if(holidays[`${m+1}-${d}`]) cell.classList.add("holiday");
+
+    cell.appendChild(solarSpan);
+    cell.appendChild(lunarSpan);
+    daysEl.appendChild(cell);
   }
 }
+
+// 初始化
 render();
 
-prev.onclick = ()=>{ date.setMonth(date.getMonth()-1); render(); };
-next.onclick = ()=>{ date.setMonth(date.getMonth()+1); render(); };
+// 切換月份
+document.getElementById('prev').onclick = () => { date.setMonth(date.getMonth()-1); render(); };
+document.getElementById('next').onclick = () => { date.setMonth(date.getMonth()+1); render(); };
 
-/* 照片（只存在自己手機） */
+// 相片上傳與持久化
 photoInput.onchange = () => {
   const file = photoInput.files[0];
   if(!file) return;
   const r = new FileReader();
   r.onload = e => {
     photoArea.style.backgroundImage = `url(${e.target.result})`;
-    localStorage.setItem("photo", e.target.result);
+    try { localStorage.setItem("wallpaper_photo", e.target.result); } catch(err) { console.warn("圖片太大，無法存入本地暫存"); }
   };
   r.readAsDataURL(file);
 };
 
-const saved = localStorage.getItem("photo");
-if(saved) photoArea.style.backgroundImage = `url(${saved})`;
+const savedPhoto = localStorage.getItem("wallpaper_photo");
+if(savedPhoto) photoArea.style.backgroundImage = `url(${savedPhoto})`;
 
-/* 乾淨儲存畫面 */
+// 核心功能：截圖並彈出長按選單
 saveImage.onclick = async () => {
+  saveImage.innerText = "正在處理中...";
   const calendar = document.getElementById("calendar");
-
-  // 1️⃣ 隱藏 UI
+  
+  // 進入截圖模式
   calendar.classList.add("hide-ui");
-  await new Promise(r => setTimeout(r, 100));
+  
+  try {
+    const canvas = await html2canvas(calendar, {
+      useCORS: true,
+      scale: 3, // 提高到 3 倍，確保做成桌布不會有鋸齒
+      backgroundColor: "#000",
+      logging: false
+    });
 
-  // 2️⃣ 截圖
-  const canvas = await html2canvas(calendar, { backgroundColor: null });
-
-  // 3️⃣ 還原 UI
-  calendar.classList.remove("hide-ui");
-
-  // 4️⃣ 轉成 Blob
-  canvas.toBlob(async blob => {
-
-    // 🔑 核心：叫出「系統分享面板」
-    if (navigator.share) {
-      const file = new File([blob], "我的紀念月曆.png", { type: "image/png" });
-      await navigator.share({
-        files: [file],
-        title: "我的紀念月曆"
-      });
-    } else {
-      // 備用（少數舊裝置）
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "我的紀念月曆.png";
-      a.click();
-      alert("請到下載項目或檔案中查看圖片");
-    }
-  });
+    const imgData = canvas.toDataURL("image/png");
+    document.getElementById("resultImage").src = imgData;
+    document.getElementById("resultMask").style.display = "flex";
+  } catch (err) {
+    alert("系統忙碌中，請稍後再試或使用手機內建截圖");
+    console.error(err);
+  } finally {
+    calendar.classList.remove("hide-ui");
+    saveImage.innerText = "📸 生成手機儲存圖片";
+  }
 };
 </script>
 
