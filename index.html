@@ -8,11 +8,9 @@
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <style>
-/* 核心修改：讓高度百分之百填滿 */
 html, body { 
     height: 100%; 
     margin: 0; 
-    padding: 0; 
     overflow: hidden; 
     background: #000;
 }
@@ -20,89 +18,103 @@ html, body {
 body {
     display: flex;
     justify-content: center;
-    align-items: flex-start;
 }
 
-/* 月曆主容器：強制符合螢幕比例 */
+/* 主容器 */
 .calendar { 
     width: 100vw; 
-    height: 100vh; /* 關鍵：高度等於螢幕高度 */
-    max-width: 500px; /* 電腦版瀏覽時不至於太寬 */
-    background: #000;
+    height: 100vh;
+    max-width: 500px;
     display: flex;
     flex-direction: column;
-    color: #fff;
-    overflow: hidden;
+    background: #000;
+    color: #000;
 }
 
-/* 照片區域：設定為 flex: 1，它會自動吃掉剩下的空間，達成全螢幕效果 */
+/* 🔹 上半部照片（50%） */
 .photo { 
-    flex: 1; 
-    background: #222 center / cover no-repeat; 
-    position: relative; 
+    height: 50%;
+    background: #222 center / cover no-repeat;
+    position: relative;
 }
-.photo input { position: absolute; inset: 0; opacity: 0; z-index: 10; width: 100%; height: 100%; }
-.photoHint { position: absolute; bottom: 10px; right: 10px; font-size: 10px; background: rgba(0,0,0,0.5); padding: 3px 8px; border-radius: 5px; pointer-events: none; }
-
-.greeting { 
-    text-align: center; 
-    padding: 12px; 
-    font-size: 16px; 
-    background: #7f3fbf; 
-    min-height: 1.5em;
-}
-
-.monthNav { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; }
-.monthNav button { font-size: 18px; width: 36px; height: 36px; border-radius: 50%; border: none; background: #ffd966; color: #000; }
-#monthLabel { font-size: 18px; font-weight: bold; }
-
-.weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; padding: 5px 0; opacity: 0.7; font-size: 12px; }
-
-/* 日期區域：固定在下方，並加上若隱若現的背景 */
-.days { 
-    position: relative; 
-    display: grid; 
-    grid-template-columns: repeat(7, 1fr); 
-    text-align: center;
-    padding-bottom: env(safe-area-inset-bottom); /* 避開 iPhone 底部橫條 */
-    background: url("horse.jpg") center / cover no-repeat;
-}
-
-/* 修改為深色半透明遮罩，達到若隱若現效果 */
-.days::after {
-    content: "";
+.photo input { position: absolute; inset: 0; opacity: 0; }
+.photoHint {
     position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45); /* 黑色半透明 */
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-    z-index: 1;
-}
-
-.day-cell { 
-    position: relative; 
-    padding: 10px 0; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    z-index: 2; 
-}
-
-.solar-date { 
-    font-size: 18px; 
-    font-weight: 500; 
+    bottom: 10px;
+    right: 10px;
+    font-size: 10px;
+    background: rgba(0,0,0,0.5);
     color: #fff;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-}
-.lunar-date { 
-    font-size: 10px; 
-    color: rgba(255,255,255,0.7); 
-    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    padding: 3px 8px;
+    border-radius: 5px;
 }
 
-.weekend .solar-date { color: #ff6b6b; }
+/* 🔹 中軸區 */
+.center {
+    background: #7f3fbf;
+    color: #fff;
+    text-align: center;
+}
 
-/* 儲存按鈕：固定在畫面最下方浮動，不影響月曆比例 */
+.greeting {
+    padding: 12px;
+    font-size: 16px;
+}
+
+.monthNav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 20px;
+}
+.monthNav button {
+    font-size: 18px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: #ffd966;
+}
+#monthLabel { font-weight: bold; }
+
+.weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    font-size: 12px;
+    opacity: 0.9;
+    padding-bottom: 6px;
+}
+
+/* 🔹 下半部日期（50%） */
+.days {
+    height: 50%;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(6px);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* 日期格 */
+.day-cell {
+    padding: 8px 0;
+    text-align: center;
+}
+
+/* 日期字體 */
+.solar-date {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+.lunar-date {
+    font-size: 10px;
+    color: #888;
+}
+
+.weekend .solar-date { color: #e05656; }
+
+/* 儲存按鈕 */
 #saveBtn {
     position: fixed;
     bottom: 30px;
@@ -111,49 +123,64 @@ body {
     padding: 12px 30px;
     border-radius: 50px;
     background: #ffd966;
-    color: #000;
+    border: none;
     font-weight: bold;
     z-index: 100;
-    border: none;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
 
 /* 截圖遮罩 */
-#resultMask { position: fixed; inset: 0; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
-#resultImage { width: 100%; height: 100%; object-fit: contain; }
-#resultMask p { position: absolute; top: 40px; color: #ffd966; font-weight: bold; text-shadow: 0 2px 4px #000; }
+#resultMask {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+#resultImage {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
 
-.hide-ui #saveBtn, .hide-ui .photoHint, .hide-ui .monthNav button { visibility: hidden !important; }
+.hide-ui #saveBtn,
+.hide-ui .photoHint,
+.hide-ui .monthNav button {
+    visibility: hidden;
+}
 </style>
 </head>
+
 <body>
 
 <div class="calendar" id="calendar">
+
     <div class="photo" id="photoArea">
         <input type="file" id="photoInput" accept="image/*">
         <span class="photoHint">點擊換圖</span>
     </div>
 
-    <div class="greeting" contenteditable="true">在這裡輸入您的心情...</div>
-
-    <div class="monthNav">
-        <button onclick="changeMonth(-1)">◀</button>
-        <div id="monthLabel"></div>
-        <button onclick="changeMonth(1)">▶</button>
-    </div>
-
-    <div class="weekdays">
-        <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+    <div class="center">
+        <div class="greeting" contenteditable="true">在這裡輸入您的心情...</div>
+        <div class="monthNav">
+            <button onclick="changeMonth(-1)">◀</button>
+            <div id="monthLabel"></div>
+            <button onclick="changeMonth(1)">▶</button>
+        </div>
+        <div class="weekdays">
+            <div>日</div><div>一</div><div>二</div><div>三</div>
+            <div>四</div><div>五</div><div>六</div>
+        </div>
     </div>
 
     <div class="days" id="days"></div>
 </div>
 
-<button id="saveBtn" onclick="takeScreenshot()">📸 生成手機 1:1 桌布</button>
+<button id="saveBtn" onclick="takeScreenshot()">📸 生成手機桌布</button>
 
 <div id="resultMask" onclick="this.style.display='none'">
-    <img id="resultImage" src="">
-    <p>💡 長按圖片儲存到手機</p>
+    <img id="resultImage">
 </div>
 
 <script>
@@ -161,79 +188,52 @@ let current = new Date();
 
 function getLunarDay(date) {
     try {
-        const options = { day: 'numeric', month: 'long', calendar: 'chinese' };
-        const formatter = new Intl.DateTimeFormat('zh-TW-u-ca-chinese', options);
-        const parts = formatter.formatToParts(date);
-        const month = parts.find(p => p.type === 'month').value;
-        const day = parts.find(p => p.type === 'day').value;
-        return (day === '1' || day === '初一') ? month : day;
-    } catch (e) { return ""; }
+        const f = new Intl.DateTimeFormat('zh-TW-u-ca-chinese',{day:'numeric',month:'long'});
+        const p = f.formatToParts(date);
+        const d = p.find(x=>x.type==='day').value;
+        const m = p.find(x=>x.type==='month').value;
+        return d === '1' ? m : d;
+    } catch { return ''; }
 }
 
-function render() {
-    const y = current.getFullYear();
-    const m = current.getMonth();
-    const daysEl = document.getElementById("days");
-    daysEl.innerHTML = "";
-    document.getElementById("monthLabel").innerText = `${y} 年 ${m + 1} 月`;
+function render(){
+    const y=current.getFullYear(), m=current.getMonth();
+    const days=document.getElementById("days");
+    days.innerHTML="";
+    monthLabel.innerText=`${y} 年 ${m+1} 月`;
 
-    const first = new Date(y, m, 1).getDay();
-    const total = new Date(y, m + 1, 0).getDate();
+    const first=new Date(y,m,1).getDay();
+    const total=new Date(y,m+1,0).getDate();
 
-    for (let i = 0; i < first; i++) daysEl.appendChild(document.createElement("div"));
+    for(let i=0;i<first;i++) days.appendChild(document.createElement("div"));
 
-    for (let d = 1; d <= total; d++) {
-        const targetDate = new Date(y, m, d);
-        const cell = document.createElement("div");
-        cell.className = "day-cell";
-        const solar = document.createElement("span");
-        solar.className = "solar-date";
-        solar.innerText = d;
-        const lunar = document.createElement("span");
-        lunar.className = "lunar-date";
-        lunar.innerText = getLunarDay(targetDate);
-
-        if (targetDate.getDay() === 0 || targetDate.getDay() === 6) cell.classList.add("weekend");
-        cell.appendChild(solar);
-        cell.appendChild(lunar);
-        daysEl.appendChild(cell);
+    for(let d=1;d<=total;d++){
+        const date=new Date(y,m,d);
+        const cell=document.createElement("div");
+        cell.className="day-cell"+([0,6].includes(date.getDay())?" weekend":"");
+        cell.innerHTML=`<div class="solar-date">${d}</div>
+                        <div class="lunar-date">${getLunarDay(date)}</div>`;
+        days.appendChild(cell);
     }
 }
 
-function changeMonth(step) {
-    current.setMonth(current.getMonth() + step);
-    render();
-}
+function changeMonth(n){ current.setMonth(current.getMonth()+n); render(); }
 
-document.getElementById('photoInput').onchange = function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-        document.getElementById('photoArea').style.backgroundImage = `url(${ev.target.result})`;
-    };
-    reader.readAsDataURL(file);
+photoInput.onchange=e=>{
+    const r=new FileReader();
+    r.onload=()=>photoArea.style.backgroundImage=`url(${r.result})`;
+    r.readAsDataURL(e.target.files[0]);
 };
 
-async function takeScreenshot() {
-    const btn = document.getElementById('saveBtn');
-    btn.innerText = "正在適配螢幕...";
-    const calendar = document.getElementById('calendar');
+function takeScreenshot(){
     calendar.classList.add('hide-ui');
-    await new Promise(r => setTimeout(r, 500));
-
-    html2canvas(calendar, {
-        scale: 3, // 高清
-        useCORS: true,
-        backgroundColor: "#000",
-        width: calendar.offsetWidth,
-        height: calendar.offsetHeight
-    }).then(canvas => {
-        document.getElementById("resultImage").src = canvas.toDataURL("image/png");
-        document.getElementById("resultMask").style.display = "flex";
-        calendar.classList.remove('hide-ui');
-        btn.innerText = "📸 生成手機 1:1 桌布";
-    });
+    setTimeout(()=>{
+        html2canvas(calendar,{scale:3,backgroundColor:"#000"}).then(c=>{
+            resultImage.src=c.toDataURL();
+            resultMask.style.display="flex";
+            calendar.classList.remove('hide-ui');
+        });
+    },300);
 }
 
 render();
