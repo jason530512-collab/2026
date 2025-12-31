@@ -3,160 +3,102 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>手機月曆桌布</title>
-{
-  "name": "月曆桌布",
-  "short_name": "桌布",
-  "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
-  "icons": [
-    {
-      "src": "icon.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
-}
+<title>每日月曆桌布</title>
+
 <link rel="manifest" href="manifest.json">
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <style>
 html,body{
-  margin:0;
-  height:100%;
-  background:#000;
-  overflow:hidden;
+  margin:0;height:100%;background:#000;overflow:hidden;
   font-family:-apple-system,BlinkMacSystemFont;
 }
 
-/* 🔹 桌布安全比例（iPhone / Android 通吃） */
+/* 桌布比例容器 */
 .wallpaper{
-  width:100vw;
-  height:100vh;
+  width:100vw;height:100vh;
   aspect-ratio:9/19.5;
-  max-width:calc(100vh * 9 / 19.5);
-  max-height:100vh;
-  margin:auto;
-  background:#000;
+  max-width:calc(100vh*9/19.5);
+  margin:auto;background:#000;
   display:flex;
 }
 
 /* 主內容 */
-.calendar{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-}
+.calendar{flex:1;display:flex;flex-direction:column}
 
 /* 上半部照片 */
 .photo{
-  height:50%;
-  background:#222 center/cover no-repeat;
-  position:relative;
+  height:50%;background:#222 center/cover no-repeat;position:relative;
 }
 .photo input{position:absolute;inset:0;opacity:0}
 .photoHint{
-  position:absolute;
-  right:10px;
-  bottom:10px;
-  font-size:10px;
-  color:#fff;
+  position:absolute;right:10px;bottom:10px;
+  font-size:10px;color:#fff;
   background:rgba(0,0,0,.5);
-  padding:3px 8px;
-  border-radius:6px;
+  padding:3px 8px;border-radius:6px;
 }
 
 /* 中軸 */
-.center{
-  background:#7f3fbf;
-  color:#fff;
-  text-align:center;
-}
-.greeting{
-  padding:12px;
-  font-size:16px;
-}
+.center{background:#7f3fbf;color:#fff;text-align:center}
+.greeting{padding:12px;font-size:16px}
 .monthNav{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:6px 20px;
+  display:flex;justify-content:space-between;
+  align-items:center;padding:6px 20px
 }
 .monthNav button{
-  width:34px;height:34px;
-  border-radius:50%;
-  border:none;
-  background:#ffd966;
-  font-size:18px;
+  width:34px;height:34px;border-radius:50%;
+  border:none;background:#ffd966;font-size:18px
 }
 .weekdays{
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  font-size:12px;
-  padding-bottom:6px;
+  display:grid;grid-template-columns:repeat(7,1fr);
+  font-size:12px;padding-bottom:6px
 }
 
-/* 下半部日期（淺色系） */
+/* 下半部日期 */
 .days{
-  height:50%;
-  display:grid;
+  height:50%;display:grid;
   grid-template-columns:repeat(7,1fr);
-  background:rgba(255,255,255,.9);
+  background:rgba(255,255,255,.92);
   backdrop-filter:blur(6px);
-  padding-bottom:env(safe-area-inset-bottom);
 }
-.day-cell{
-  text-align:center;
-  padding:8px 0;
-}
-.solar{
-  font-size:18px;
-  font-weight:600;
-  color:#333;
-}
-.lunar{
-  font-size:10px;
-  color:#888;
-}
+.day-cell{text-align:center;padding:8px 0}
+.solar{font-size:18px;font-weight:600;color:#333}
+.lunar{font-size:10px;color:#888}
 .weekend .solar{color:#e74c3c}
+
+/* 比例切換 */
+#ratioSwitch{
+  position:fixed;bottom:90px;left:50%;
+  transform:translateX(-50%);
+  display:flex;gap:10px;z-index:100
+}
+#ratioSwitch button{
+  padding:6px 14px;border-radius:20px;
+  border:none;background:#fff;font-size:12px
+}
 
 /* 儲存鍵 */
 #saveBtn{
-  position:fixed;
-  bottom:28px;
-  left:50%;
+  position:fixed;bottom:30px;left:50%;
   transform:translateX(-50%);
-  padding:12px 30px;
-  border-radius:50px;
-  border:none;
-  background:#ffd966;
-  font-weight:bold;
-  z-index:100;
+  padding:12px 30px;border-radius:50px;
+  border:none;background:#ffd966;
+  font-weight:bold;z-index:100
 }
 
-/* 截圖顯示 */
+/* 結果顯示 */
 #mask{
-  position:fixed;
-  inset:0;
-  background:#000;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:999;
+  position:fixed;inset:0;background:#000;
+  display:none;align-items:center;justify-content:center;
+  z-index:999
 }
-#mask img{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-}
+#mask img{width:100%;height:100%;object-fit:contain}
 
 .hide-ui #saveBtn,
 .hide-ui .photoHint,
-.hide-ui .monthNav button{
-  visibility:hidden;
-}
+.hide-ui .monthNav button,
+.hide-ui #ratioSwitch{visibility:hidden}
 </style>
 </head>
 
@@ -171,20 +113,25 @@ html,body{
     </div>
 
     <div class="center">
-      <div class="greeting" contenteditable>在這裡輸入你的心情…</div>
+      <div class="greeting" id="quote"></div>
       <div class="monthNav">
         <button onclick="changeMonth(-1)">◀</button>
         <div id="monthLabel"></div>
         <button onclick="changeMonth(1)">▶</button>
       </div>
       <div class="weekdays">
-        <div>日</div><div>一</div><div>二</div><div>三</div>
-        <div>四</div><div>五</div><div>六</div>
+        <div>日</div><div>一</div><div>二</div>
+        <div>三</div><div>四</div><div>五</div><div>六</div>
       </div>
     </div>
 
     <div class="days" id="days"></div>
   </div>
+</div>
+
+<div id="ratioSwitch">
+  <button onclick="setRatio('lock')">鎖屏</button>
+  <button onclick="setRatio('home')">桌面</button>
 </div>
 
 <button id="saveBtn" onclick="capture()">📸 一鍵儲存桌布</button>
@@ -196,14 +143,32 @@ html,body{
 <script>
 let current=new Date();
 
-/* 🇹🇼 國定假日 */
+/* 每日語錄 */
+const quotes=[
+  "今天的努力，會成為明天的底氣。",
+  "慢一點沒關係，但不要停下來。",
+  "日子普通，但你不普通。",
+  "專注當下，就是最好的安排。",
+  "把今天過好，就是最大的成就。",
+  "穩穩走，也是一種前進。"
+];
+function todayQuote(){
+  const day=Math.floor(
+    (new Date()-new Date(new Date().getFullYear(),0,0))/86400000
+  );
+  return quotes[day%quotes.length];
+}
+quote.innerText=todayQuote();
+
+/* 台灣假日 */
 const holidays={
-  "1-1":"元旦","2-28":"和平紀念日","4-4":"兒童節",
-  "4-5":"清明節","5-1":"勞動節","10-10":"國慶日"
+  "1-1":"元旦","2-28":"和平紀念日",
+  "4-4":"兒童節","4-5":"清明節",
+  "5-1":"勞動節","10-10":"國慶日"
 };
 
-/* 🌗 農曆 / 節氣 */
-function lunarText(date){
+/* 農曆 */
+function lunar(date){
   try{
     const f=new Intl.DateTimeFormat('zh-TW-u-ca-chinese',{day:'numeric',month:'long'});
     const p=f.formatToParts(date);
@@ -217,40 +182,39 @@ function render(){
   const y=current.getFullYear(),m=current.getMonth();
   days.innerHTML="";
   monthLabel.innerText=`${y} 年 ${m+1} 月`;
-
   const first=new Date(y,m,1).getDay();
   const total=new Date(y,m+1,0).getDate();
   for(let i=0;i<first;i++)days.appendChild(document.createElement("div"));
-
   for(let d=1;d<=total;d++){
     const date=new Date(y,m,d);
+    let text=lunar(date);
+    if(holidays[`${m+1}-${d}`]) text=holidays[`${m+1}-${d}`];
     const cell=document.createElement("div");
     cell.className="day-cell"+([0,6].includes(date.getDay())?" weekend":"");
-
-    let text=lunarText(date);
-    const key=`${m+1}-${d}`;
-    if(holidays[key]) text=holidays[key];
-
-    cell.innerHTML=`<div class="solar">${d}</div>
-                    <div class="lunar">${text}</div>`;
+    cell.innerHTML=`<div class="solar">${d}</div><div class="lunar">${text}</div>`;
     days.appendChild(cell);
   }
 }
-
 function changeMonth(n){current.setMonth(current.getMonth()+n);render();}
+render();
 
+/* 照片 */
 photoInput.onchange=e=>{
   const r=new FileReader();
   r.onload=()=>photo.style.backgroundImage=`url(${r.result})`;
   r.readAsDataURL(e.target.files[0]);
 };
 
+/* 比例切換 */
+function setRatio(type){
+  wallpaper.style.aspectRatio=type==="home"?"9/16":"9/19.5";
+}
+
+/* 截圖存檔 */
 async function capture(){
   calendar.classList.add("hide-ui");
   await new Promise(r=>setTimeout(r,300));
-
-  html2canvas(wallpaper,{scale:3,backgroundColor:"#000"})
-  .then(c=>{
+  html2canvas(wallpaper,{scale:3,backgroundColor:"#000"}).then(c=>{
     c.toBlob(b=>{
       const f=new File([b],"wallpaper.png",{type:"image/png"});
       if(navigator.canShare&&navigator.canShare({files:[f]})){
@@ -263,8 +227,6 @@ async function capture(){
     });
   });
 }
-
-render();
 </script>
 </body>
 </html>
